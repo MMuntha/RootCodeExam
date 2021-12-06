@@ -1,8 +1,13 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {Text, View, TextInput, Button, StyleSheet, Dimensions} from 'react-native';
 import MainButton from '../components/MainButton';
 import { Formik } from 'formik';
 import * as yup from 'yup'
+import { CredintialsContext } from '../components/CredintialContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+
 
 let schema = yup.object().shape({
     email: yup.string().required(),
@@ -10,6 +15,25 @@ let schema = yup.object().shape({
   });
 
 export default function Login ({navigation}){
+
+    const {storedCredintials,setStoredCredintials} = useContext(CredintialsContext)
+
+    const persistLogin = async(credintials) => {
+        try{
+            const jsonValue = JSON.stringify(credintials)
+             await AsyncStorage.setItem('rootCode', jsonValue)
+            setStoredCredintials(credintials)
+
+        }
+        catch(e)
+        {
+            console.log(e)
+        }
+
+    }
+
+
+
     return(
         <View style={styles.container}>
 
@@ -32,7 +56,8 @@ export default function Login ({navigation}){
               .then((json) => {
 
                 console.log(json)
-                navigation.navigate('BottomTab')
+                persistLogin(json)
+                //navigation.navigate('BottomTab')
 
               })
               .catch((error) => {
@@ -67,6 +92,7 @@ export default function Login ({navigation}){
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
+
 
 const styles = StyleSheet.create({
     container: {
